@@ -13,7 +13,7 @@ using FrooxEngine;
 using FrooxEngine.Store;
 using FrooxEngine.UIX;
 using HarmonyLib;
-using ResoniteHotReloadLib;
+// using ResoniteHotReloadLib;
 using ResoniteModLoader;
 
 namespace InventoryHelper
@@ -42,7 +42,7 @@ namespace InventoryHelper
 
         private static Harmony har;
 
-        static void BeforeHotReload()
+        /*static void BeforeHotReload()
         {
             har.UnpatchAll("dev.kaan.InventorySearch");
             // Record yeah = new();
@@ -60,12 +60,20 @@ namespace InventoryHelper
             LoadCacheFromFile();
 
             Console.WriteLine("I reloaded uwu");
-        }
+        }*/
 
         public override void OnEngineInit()
         {
-            OnHotReload(this);
-            HotReloader.RegisterForHotReload(this);
+            har = new Harmony("dev.kaan.InventorySearch");
+            har.PatchAll();
+
+            Config = GetConfiguration();
+            Config?.Save(true);
+
+            LoadCacheFromFile();
+
+            Console.WriteLine("I reloaded uwu");
+            // HotReloader.RegisterForHotReload(this);
         }
 
         [HarmonyPatch(typeof(InventoryBrowser))]
@@ -182,7 +190,7 @@ namespace InventoryHelper
             EnsureButtonInitialized(ref PasteItemButton, UI, "Paste", PasteItemButtonOnLocalPressed);
             EnsureButtonInitialized(ref CutItemButton, UI, "Cut", CutItemButtonOnLocalPressed);
 
-            if (inventoryBrowser.SelectedItem.Target.IsFolder())
+            if (inventoryBrowser.SelectedItem?.Target != null && inventoryBrowser.SelectedItem.Target.IsFolder())
             {
                 CachedItem = inventoryBrowser.SelectedInventoryItem;
             }
